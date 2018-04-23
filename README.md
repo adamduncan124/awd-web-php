@@ -47,14 +47,14 @@ The Framework folder (awd objects), the userbuilt folder (where you can add obje
 Defined Constants
 
 	AWD_PAGEEVENTS_PATH -> page event file paths. Check out the page events section for details. By default its the event folder under the root.
-AWD_LAYOUTS_PATH -> location for layout templates. Check out the layouts section for details. By default its the layouts folder under the root.
-AWD_HTML_SCRIPTS_PATH -> location for all javascript scripts. By default its scripts under the root.
-AWD_HTML_CSS_PATH -> location for all javascript scripts. By default its a css folder under the selected layout template.
-AWD_FRAMEWORK_PATH -> location for all framework extensions.  It works with the AWD_DIR set in the main index file.
-AWD_USERBUILT_PATH -> location for all userbuilt extensions.  It works with the AWD_DIR set in the main index file.
-AWD_PAGES_PATH -> page file paths.  This is loaded in the layout class.  By default it is the page folder under the root.
-AWD_BASEURL -> quick reference for $AWD_CONFIG [‘url’][‘base’]
-AWD_COOKIEURL -> quick reference for $AWD_CONFIG [‘url’][cookie]
+	AWD_LAYOUTS_PATH -> location for layout templates. Check out the layouts section for details. By default its the layouts folder under the root.
+	AWD_HTML_SCRIPTS_PATH -> location for all javascript scripts. By default its scripts under the root.
+	AWD_HTML_CSS_PATH -> location for all javascript scripts. By default its a css folder under the selected layout template.
+	AWD_FRAMEWORK_PATH -> location for all framework extensions.  It works with the AWD_DIR set in the main index file.
+	AWD_USERBUILT_PATH -> location for all userbuilt extensions.  It works with the AWD_DIR set in the main index file.
+	AWD_PAGES_PATH -> page file paths.  This is loaded in the layout class.  By default it is the page folder under the root.
+	AWD_BASEURL -> quick reference for $AWD_CONFIG [‘url’][‘base’]
+	AWD_COOKIEURL -> quick reference for $AWD_CONFIG [‘url’][cookie]
 
 Functions
 
