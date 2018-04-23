@@ -1,0 +1,35 @@
+/*
+AWD Framework - Blank Layout Css
+*/
+
+/* global redefined tags */
+*{margin: 0;padding: 0;}
+body, html{background-color: #dddddd;}
+/*
+------------------------------------
+             MAIN ID
+------------------------------------
+*/
+
+#awd-blank{margin-left: 30px; margin-right: 30px; border-left: solid 1px #aaaaaa; border-right: solid 1px #aaaaaa;}
+
+/*
+------------------------------------
+            Layout Css
+------------------------------------
+*/
+
+#awd-header{background-color: #222222;}
+#awd-header h1 {color: #ffffff; padding: 20px; padding-bottom: 5px;}
+#awd-header h2 {color: #eeeeee; font-style: italic; padding: 20px; padding-left: 35px; padding-top: 5px;}
+#awd-header nav {background-color: #999999; height: 40px;}
+#awd-header nav ul{list-style-type: none; height: 40px;}
+#awd-header nav ul li{float: left; width: 200px; height: 40px; border-right: solid 1px #aaaaaa;}
+#awd-header nav ul li a{text-decoration: none;display: block; font-size: 18px; line-height: 18px; padding: 11px;text-align: center;color: #111111;}
+#awd-header nav ul li a:hover{background-color: #666666; color: #eeeeee;}
+
+#awd-content {min-height: 1000px; background-color: #ffffff;}
+#awd-blank .content{padding: 30px;}
+
+#awd-footer {background-color: #222222; min-height: 200px;}
+#awd-footer .copyright{color: #ffffff; text-align: center; padding-top: 40px; font-size: 12px;}
