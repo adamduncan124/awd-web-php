@@ -10,38 +10,35 @@ Purpose
 this class has all the common methods used in all the data layer classes that use the table object as the "dataTable" property like row and pagedrows
 -------------------------
 */
+
 namespace AWD\Data{
 	abstract class DataObject extends \AWD\Api implements \AWD\Interfaces\Data\iDataObject{
+		protected $defaultTableFilters;
+		protected $tableFilters;
 		protected $tableName;		
 		protected $dataTable;
-		protected $postPrefix;
+		protected $dbName = null;
+
 		private $_apiColumns;
 		
 		public function __construct() {
 			$get_arguments = func_get_args();
 			$number_of_arguments = func_num_args();
 
-			if($number_of_arguments<=0){ $number_of_arguments=1; }
+//			if($number_of_arguments<=0){ $number_of_arguments=1; } (allow zero)
 
 			if (method_exists($this, $method_name = '__construct'.$number_of_arguments)) {
 				call_user_func_array(array($this, $method_name), $get_arguments);
 			}
 		}
 		
-		public function __construct1($obj=null){
-			$i = null; //id (kept for historical reasons)
-			$db = null;
-			
-			if($obj instanceof \AWD\Interfaces\Data\iConnection)
-				$db = $obj;
-			else
-				$i = $obj;
-			
-			parent::__construct($i);
-			
-			if(isset($this->tableName) && isset($db)){
-				$this->SetTable($db);
-				$this->Load($i);
+		public function __construct0(){
+			$this->SetTable($this->dbName);
+		}
+		
+		public function __construct1($db_name=null){
+			if(isset($this->tableName) && isset($db_name)){
+				$this->SetTable($db_name);				
 			}
 		}		
 		
@@ -50,36 +47,59 @@ namespace AWD\Data{
 			$this->SetProperties($obj);
 		}
 		
-		public function __construct3($db, $tableName, $obj){
+		public function __construct3($db_name, $tableName, $obj){
 			$this->tableName = $tableName;
-			$this->SetTable($db);
+			$this->SetTable($db_name);
 			$this->Load($obj);
 		}
 		
-		public function __construct4($db, $tableName, $postPrefix, $obj){
+		public function __construct4($db, $sqlBuilder, $tableName, $obj){
 			$this->tableName = $tableName;
-			$this->postPrefix = $postPrefix;
-			$this->SetTable($db);
+			$this->SetTable($db, $sqlBuilder);
 			$this->Load($obj);
 		}	
 		
-		private function SetTable($db){
-			$this->dataTable = new Table($db, $this->tableName, $this->postPrefix);				
+		public function __construct5($db, $sqlBuilder, $tableName, $obj, $postPrefix){
+			$this->tableName = $tableName;
+			$this->SetTable($db, $sqlBuilder, $postPrefix);
+			$this->Load($obj);
+		}	
+		
+		//AWD NOTE: both are set here, but default will never change unless this method is called again. table filter will change as the objects go up
+		public function SetDefaultFilters($obj){
+			$this->defaultTableFilters = $obj;
+			$this->tableFilters = $obj;
+		}
+		
+		public function SetJoins($obj){
+			$this->dataTable->sqlBuilder->tableJoins = $obj;
+		}
+		
+		private function SetTable($db, $sqlBuilder=null, $postPrefix=null){
+			if($db instanceof \AWD\Interfaces\Data\iConnection){
+				$this->dataTable = new Table($db, $sqlBuilder, $postPrefix);	
+			}else{
+				awd_conn_injectconstruct($this->dataTable, $this->tableName, null, $db);
+			}			
 		}
 		
 		public function SetSelectList($obj){
-			$this->dataTable->selectList = $obj;
+			$this->dataTable->sqlBuilder->selectList = $obj;
 		}
 		
 		public function ApiColumns(){
 			//do nothing.  the ReturnApiXML and the ReturnApiJSON handles it object does it all
 		}
 		
-		abstract protected function Load($obj);		
+		abstract public function Load($obj);		
 		
-		abstract public function ApiSave();
+		public function ApiSave(){
+			//does nothing
+		}
 		
-		abstract public function ApiDelete();
+		public function ApiDelete(){
+			//does nothing
+		}
 		
 		public function ReturnApiJSON(){			
 			return $this->returnJSON(
@@ -130,7 +150,7 @@ namespace AWD\Data{
 					"name" => $this->columns[$i]['Field'],
 					"columnType" => $this->types->EnumType($this->columns[$i]['Type']),
 					"order" => $i,
-					"display" =>
+					"display" => ucfirst($this->columns[$i]['Field'])
 				);
 			}
 			

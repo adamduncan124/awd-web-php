@@ -20,10 +20,11 @@ namespace AWD\Data{
 	class Table{
 		private $_columns;
 		private $_types;
-		private $db;
-		private $sqlBuilder;	
+		private $_db;
+		private $_sqlBuilder;	
 		private $postPrefix;
 		
+		public $rowClassName = "row";
 		public $lastAlteredRow;		
 		public $debugSql;
 		
@@ -40,13 +41,32 @@ namespace AWD\Data{
 						$this->_columns = $this->db->LoadTableColumns($this->tableName, true);	
 					
 					return $this->_columns;
+				case "tableName":
+					if(isset($this->_sqlBuilder))
+						return $this->_sqlBuilder->tableName;
+					
+					return null;
+				case "sqlBuilder":
+					return $this->_sqlBuilder;
+				case "db":
+					return $this->_db;
 			}
 		}
 		
-		public function __construct($db, $sqlBuilder, $table, $postPrefix=null){
+		public function __set($name, $val){
+			switch(strtolower($name)){
+				case "sqlBuilder":
+					$this->_sqlBuilder = $val;
+					$this->ValidateRequiredProperties();
+				case "db":
+					$this->_db = $val;
+					$this->ValidateRequiredProperties();
+			}
+		}
+		
+		public function __construct($db, $sqlBuilder, $postPrefix=null){
 			$this->_db = $db;
 			$this->_sqlBuilder = $sqlBuilder 
-			$this->sqlBuilder->tableName = $table;
 			
 			if(isset($postPrefix))
 				$this->postPrefix = $postPrefix;
@@ -150,17 +170,6 @@ namespace AWD\Data{
 			}
 		}
 		
-		public function LoadSingle($obj){
-			$DataRow = new Row();
-			
-			if($row=$this->LoadData($obj)){
-				$DataRow->SetTable($this->tableName, $this->postPrefix);
-				$DataRow->SetProperties($row);	
-			}
-			
-			return $DataRow;
-		}
-		
 		public function LoadData($obj, $onlyOneRow=true){
 			$sql = $this->sqlBuilder->SelectSql($obj);
 			
@@ -199,9 +208,10 @@ namespace AWD\Data{
 				$i = 0;
 				
 				while($row = $this->db->FetchRow()){
-					$DataRow = new Row();
-					$DataRow->SetTable($this->tableName, $this->postPrefix);
-					$DataRow->SetProperties($row);
+					$DataRow = new $this->rowClassName($this, $row);
+					
+					if(!$DataRow instanceof \AWD\Data\Row)
+						return null;
 					
 					$results[$i] = $DataRow;
 					

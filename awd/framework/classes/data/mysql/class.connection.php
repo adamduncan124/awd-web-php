@@ -37,26 +37,15 @@ namespace AWD\Data\MySQL{
 		global $config;
 		
 		//test if config has more then one database option and find it
-		if((count($config['db'])>1)||($dbname!="")){
-		  for($awd=0;$awd<count($config['db']);$awd++){
-			if($config['db'][$awd]['dbname']==$dbname){
-				$this->dbName = $config['db'][$awd]['dbname'];
-				$this->userName = $config['db'][$awd]['username'];
-				$this->passWord = $config['db'][$awd]['password'];
-				$this->serverName = $config['db'][$awd]['servername'];
-				break;
-			}
-		  }
-		}else{
-		  $this->dbName = $config['db'][0]['dbname'];
-		  $this->userName = $config['db'][0]['username'];
-		  $this->passWord = $config['db'][0]['password'];
-		  $this->serverName = $config['db'][0]['servername'];
-		}
+		if($db_config = awd_find_dbconfig($dbname))
+			\AWD\Exceptions\DataException::ThrowMissingConnection();
 		
-		if($this->dbName=="")
-			exit("Error in Finding Database");
+		$this->dbName = $db_config['dbname'];
+		$this->userName = $db_config['username'];
+		$this->passWord = $db_config['password'];
+		$this->serverName = $db_config['servername'];
 			
+		//open connection by the name of the passed variable
 		//open connection by the name of the passed variable
 		$this->ConnectToDb();
 	}

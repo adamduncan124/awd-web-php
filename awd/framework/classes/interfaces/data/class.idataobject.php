@@ -7,13 +7,13 @@ Date: 04/18/2018
 iDataObject
 this is an interface that forces all data objects to have the correct properties
 */
-namespace AWD\Interfaces{
+namespace AWD\Interfaces\Data{
 	interface iDataObject{
 		
-		protected $dataTable;
-		protected $postPrefix;
-		public function SetSelectList($obj);
-		protected function Load($obj);
+		//protected $dataTable;
+		//protected $postPrefix;
+		function SetSelectList($obj);
+		function Load($obj);
 		
 	}
 }

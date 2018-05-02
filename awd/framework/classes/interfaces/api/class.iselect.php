@@ -8,9 +8,11 @@ Api\iSelect
 this is an interface for the api object.  this allows for a select request
 */
 namespace AWD\Interfaces\Api{
-	interface iSelect{
+	interface iSelect extends iPublic{
 		
 		public function ApiSelect();
+		
+		public function ApiSelectAccess();
 		
 	}
 }

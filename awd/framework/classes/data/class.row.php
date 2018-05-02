@@ -19,17 +19,33 @@ namespace AWD\Data{
 	class Row extends DataObject{
 		//private $dataControls;
 		
+		public function __construct1($obj=null){
+			$i = null; //id (kept for historical reasons)
+			$db_name = null;
+			
+			if(is_numeric($i))
+				$i = $obj;
+			else
+				$db_name = $obj;
+			
+			parent::__construct1($db_name);
+			$this->Load($i);
+			\AWD\Object::__construct($i);
+		}		
+		
 		//--DataObject Code
-		protected function Load($obj){
+		public function Load($obj){
 			$this->LoadRow($obj);
 		}
 		//--End DataObject Code
 		
 		protected function LoadRow($obj){
-			if(!isset($obj))
+			if(!isset($obj) && !isset($this->tableFitlers))
 				return;
 			
-			if($row=$this->dataTable->LoadData($obj))
+			if($row=$this->dataTable->LoadData(
+				isset($obj) ? $obj : $this->tableFitlers, true)
+			)
 				$this->SetProperties($row);
 			else
 				$this->columns;

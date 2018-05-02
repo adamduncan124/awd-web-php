@@ -12,12 +12,12 @@ namespace AWD{
 		protected $apiAlterList;
 		
 		public $request_type;		
-		public page;
-		public size;
-		public filters;
-		public sorting;
-		public total;
-		public results;
+		public $page;
+		public $size;
+		public $filters;
+		public $sorting;
+		public $total;
+		public $results;
 		
 		public function ApiProcessRequest(){
 			if($this instanceof \AWD\Interfaces\Api\iRequestSingle)
@@ -30,6 +30,10 @@ namespace AWD{
 		
 		public function ApiSelect(){
 			//by default, does nothing
+		}
+		
+		public function ApiAllowPublic(){
+			return false;
 		}
 		
 		abstract public function ApiColumns();

@@ -11,8 +11,7 @@ allows user to get paged row objects from the table object
 -------------------------
 */
 namespace AWD\Data{
-	class PagedRows extends DataObject implements \AWD\Api\iResponseMulti{
-		protected $tableFilters;
+	class PagedRows extends DataObject{				
 		
 		//--DataObject Code
 		public function Load($obj){
@@ -31,9 +30,10 @@ namespace AWD\Data{
 		
 		//--API Code
 		public function ApiSelect(){
-			$this->SetTablePageAndSize($this->page, $this-size);
+			$this->SetDefaults();
 			$this->WorkWithApiFilter();
 			$this->WorkWithApiSorting();
+			$this->Load($this->LoadRows(false)); //set others before
 		}
 		
 		public function ApiSave(){
@@ -45,9 +45,16 @@ namespace AWD\Data{
 		}
 		//--End API Code
 		
-		public function SetTableFilters($obj){
-			$this->tableFilters = $obj;
+		protected function LoadRows($setDefaults = true){
+			if($setDefaults)
+				$this->SetDefaults();
+			
+			return $this->dataTable->LoadData($this->tableFilters);
 		}
+		
+		protected function SetRowClassName($className){
+			$this->dataTable->rowClassName = $className;
+		}		
 		
 		public function SetTableSorting($obj){
 			$this->IsTableSet();
@@ -60,14 +67,27 @@ namespace AWD\Data{
 			$this->dataTable->limit = $size;
 		}
 		
-		//NOTE: just skip if there are issues
-		private function WorkWithApiFilter(){
-			//1st make sure array
-			if(!is_array($this->filters)
-				return;
+		//AWD: used because i kept getting confused which method to call, and i'm lazy today :)
+		protected function SetChildDefaults(){
+			//does nothing right now.
+		}
+		
+		protected function SetDefaults(){
+			$this->SetChildDefaults();
+			$this->SetTablePageAndSize($this->page, $this-size);
+			
+			//reset filters
+			$this->tableFilters = $this->defaultTableFilters;
 			
 			if(!isset($this->tableFilters))
 				$this->tableFilters = new TableFilters();
+		}
+		
+		//NOTE: just skip if there are issues
+		private function WorkWithApiFilter(){
+			//1st make sure array
+			if(!is_array($this->filters))
+				return;			
 			
 			foreach($this->filters as $key => $value){
 				//try to add to tableFilter
@@ -78,7 +98,7 @@ namespace AWD\Data{
 		//NOTE: just skip if there are issues
 		private function WorkWithApiSorting(){
 			//1st make sure array
-			if(!is_array($this->sorting)
+			if(!is_array($this->sorting))
 				return;
 			
 			$orderBy = new TableSorting();			

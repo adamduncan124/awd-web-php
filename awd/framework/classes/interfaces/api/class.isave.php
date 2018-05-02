@@ -8,9 +8,11 @@ Api\iSave
 this is an interface for the api object.  this allows for a save request
 */
 namespace AWD\Interfaces\Api{
-	interface iSave{
+	interface iSave extends iPublic{
 		
 		public function ApiSave();
+		
+		public function ApiSaveAccess();
 		
 	}
 }

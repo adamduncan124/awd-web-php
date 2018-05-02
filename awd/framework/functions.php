@@ -157,6 +157,13 @@ function awd_querystring(){
 	}
 }
 
+function awd_classname_urlpath($path){
+	$buildClassName = str_replace(" ", "\\", ucfirst(str_replace("-", " ", $path)));		
+	$buildClassName = (strpos($path, "-") ?  "\\" : "") . $buildClassName;
+	
+	return $buildClassName;
+}
+
 //this function writes out the main css tags
 function awd_write_cssframework_tags($awd_file=null){
 	if(!isset($awd_file))
@@ -246,15 +253,17 @@ function awd_redirect_tosecure(){
 //----awd iConnection functions
 //NOTE these two go by the conn iConnection
 $AWD_CONN = null;
+
 function awd_conn_int(){
 	if(isset($AWD_CONN))
 		return true;
 	
 	if($config['conn']['useiconnection']){
-		$class = $config['conn']['iconnectionclass'];
+		$namespace_type = $config['conn']['connectiontype'];
+		$class_conn = $namespace_type . "\Connection";
 		
-		if(class_exists($class)){
-			$obj = new $class();
+		if(class_exists($class_conn)){
+			$obj = new $class_conn();
 			
 			if($obj instanceof AWD\Interfaces\iConnection)
 				$AWD_CONN = $obj;
@@ -263,28 +272,46 @@ function awd_conn_int(){
 		}else{
 			AWD\Exceptions\ConnectionException::ThrowClassNotExists();
 		}
-		
+
 		return true;
 	}
 	
 	return false;
 }
 
-function awd_conn_injectclass($class, $db_name=null){
+function awd_conn_sqlbuilder($table_name){ //table name is really important. so adding it here for now.
+	if($config['conn']['useiconnection']){
+		$namespace_type = $config['conn']['connectiontype'];
+		$class_sql_builder = $namespace_type . "\SqlBuilder";
+		
+		if(class_exists($class_sql_builder)){
+			$obj = new $class_sql_builder();
+			
+			if($obj instanceof \AWD\Interfaces\Data\iSqlBuilder){	
+				$obj->tableName = $table_name;
+				return $obj;
+			}else
+				\AWD\Exceptions\DataException::ThrowMissingSqlBuilder();
+		}else{
+			\AWD\Exceptions\DataException::ThrowMissingSqlBuilder();
+		}
+	}
+	
+	return false;
+}
+
+function awd_conn_injectconstruct($data_table, $table_name, $post_prefix, $dbname=null){
 	if(!awd_conn_int())
-		return;
+		return;	
 	
-	if(!class_exists($class))
-		AWD\Exceptions\ConnectionException::ThrowInvalidClass();
+	$AWD_CONN->SelectDb($dbname);
+	$data_table = new \AWD\Data\Table($AWD_CONN, awd_conn_sqlbuilder($table_name), $post_prefix);
 	
-	$AWD_CONN->SelectDb($db_name);
-	
-	$obj = new $class($AWD_CONN);
-	
-	if((!$obj instanceof AWD\Data\Table) && (!$obj instanceof AWD\Data\Row))
-		AWD\Exceptions\ConnectionException::ThrowInvalidChild();
-	
-	return $obj;
+	//AWD NOTE: let class decide
+	//if(!class_exists($class))
+	//	AWD\Exceptions\ConnectionException::ThrowInvalidClass();
+	//if((!$obj instanceof AWD\Data\Table) && (!$obj instanceof AWD\Data\Row))
+	//	AWD\Exceptions\ConnectionException::ThrowInvalidChild();
 }
 
 function awd_conn_close(){
@@ -293,6 +320,24 @@ function awd_conn_close(){
 	
 	$AWD_CONN->Close();
 }
+
+function awd_find_dbconfig($dbname){
+	global $config;
+	
+	if((count($config['db'])>1)||($dbname!="")){
+	  for($awd=0;$awd<count($config['db']);$awd++){
+		if($config['db'][$awd]['dbname']==$dbname){
+			return $config['db'][$awd];
+		}
+	  }
+	}else{
+	  if(count($config['db'])>0)
+		return $config['db'][0];
+	}
+	
+	return false;
+}
+
 //END----awd iConnection functions
 
 function awd_is_custompageload($page, $type){
@@ -328,32 +373,44 @@ function awd_is_apitype($type){
 	}
 }
 
-function awd_write_apirequest($type, $class, $request_type){	
+function awd_apiclass($classpath){
+	$class = awd_classname_urlpath($classpath);
+	
 	if(!class_exists($class))
 		AWD\Exceptions\ApiException::ThrowInvalidRequest();
 	
-	$obj = new $class($AWD_CONN);
+	$obj = new $class();
 	
 	if(!$obj instanceof AWD\Data\Api)
 		AWD\Exceptions\ApiException::ThrowMissingApiClass();
 	
+	return $obj;
+}
+
+function awd_write_apirequest($type, $classpath, $request_type){
+	$obj = awd_apiclass($classpath);	
 	$obj->ApiProcessRequest();
 	
 	$allow_request = false;
 	switch($request_type){
 		case "columns":
-			if($allow_request = ($obj instanceof AWD\Interfaces\Api\iColumn))
+			if($allow_request = ($obj instanceof AWD\Interfaces\Api\iColumn)
+				&& ($obj->ApiAllowPublic || $obj->ApiSelectAccess()))
 				$obj->ApiSelect();
+			break;
 		case "select":
-			if($allow_request = ($obj instanceof AWD\Interfaces\Api\iSelect))
+			if($allow_request = ($obj instanceof AWD\Interfaces\Api\iSelect)
+				&& ($obj->ApiAllowPublic || $obj->ApiSelectAccess()))
 				$obj->ApiSelect();
 			break;
 		case "save":
-			if($allow_request = ($obj instanceof AWD\Interfaces\Api\iSave))
+			if($allow_request = ($obj instanceof AWD\Interfaces\Api\iSave)
+				&& ($obj->ApiAllowPublic || $obj->ApiSaveAccess()))
 				$obj->ApiSave();
 			break;
 		case "delete":
-			if($allow_request = ($obj instanceof AWD\Interfaces\Api\iDelete))
+			if($allow_request = ($obj instanceof AWD\Interfaces\Api\iDelete)
+				&& ($obj->ApiDeleteAccess()))
 				$obj->ApiDelete();
 			break;
 	}

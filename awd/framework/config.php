@@ -22,9 +22,9 @@ $AWD_CONFIG = array(
 	  )
 	),
 	"url" => array(
-		"base" => "http://localhost",
-		"private" => "https://localhost",
-		"cookie" => "localhost"
+		"base" => "http://" . $_SERVER['SERVER_NAME'],
+		"private" => "https://" . $_SERVER['SERVER_NAME'],
+		"cookie" => $_SERVER['SERVER_NAME']
 	), 
 	"path" => array(
 		"scripts" => "scripts",
@@ -42,7 +42,7 @@ $AWD_CONFIG = array(
 	"defaultpage" => "home",
 	"conn" => array(
 		"useiconnection" => true,
-		"iconnectionclass" => "\AWD\Data\MySQL\Connection"
+		"connectiontype" => "\AWD\Data\MySQL"
 	)
 );
 

@@ -9,7 +9,7 @@ Purpose
 trying out basic authentication in the header and by php prompt if needed
 ----------------
 */
-namespace Autho{
+namespace AWD\Autho{
 	class BasicAutho implements \AWD\Interfaces\iAutho{
 		const HTTP_AUTHORIZATION = "HTTP_AUTHORIZATION";
 		const PHP_AUTH_USER = "PHP_AUTH_USER";
@@ -18,7 +18,11 @@ namespace Autho{
 		
 		protected $type = "Basic";
 		public $realm = "My Realm";
-		public $isAuthenticated;
+		private $_isAuthenticated;
+		
+		public function isAuthenticated(){
+			return $this->_isAuthenticated;
+		} 
 		
 		private $username = null;
 		private $password = null;
@@ -67,7 +71,7 @@ namespace Autho{
 			  $this->username == $username &&
 			  $this->password == $password
 			){
-				$this->isAuthenticated = true;
+				$this->_isAuthenticated = true;
 				return true;
 			}else{
 				return false;

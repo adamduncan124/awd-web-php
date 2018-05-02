@@ -10,7 +10,7 @@ this is an interface that all autho layers must follow
 namespace AWD\Interfaces{
 	interface iAutho{
 		
-		public $isAuthenticated;
+		function isAuthenticated();
 		
 	}
 }

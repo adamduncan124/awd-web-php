@@ -9,10 +9,14 @@ Purpose
 trying out web specific functions for authentication
 ----------------
 */
-namespace Autho{
+namespace AWD\Autho{
 	class WebAutho extends \AWD\Data\Row implements \AWD\Interfaces\iAutho{
 		protected static $boundary = "clecle!|tTiCd124!@{yo}";
-		public $isAuthenticated;
+		private $_isAuthenticated;
+		
+		public function isAuthenticated(){
+			return $this->_isAuthenticated;
+		}
 		
 		function __construct(){
 			//nothing now
@@ -37,7 +41,7 @@ namespace Autho{
 			  $this->data['guid'] == $userGuid &&
 			  $this->data['session_guid'] == $sessionGuid
 			){
-				$this->isAuthenticated = true;
+				$this->_isAuthenticated = true;
 				return true;
 			}else{
 				return false;

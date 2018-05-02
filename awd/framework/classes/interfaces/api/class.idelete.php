@@ -8,9 +8,11 @@ Api\iDelete
 this is an interface for the api object.  this allows for a delete request
 */
 namespace AWD\Interfaces\Api{
-	interface iDelete{
+	interface iDelete extends iPublic{
 		
 		public function ApiDelete();
+		
+		public function ApiDeleteAccess();
 		
 	}
 }

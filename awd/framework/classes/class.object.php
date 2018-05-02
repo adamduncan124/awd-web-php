@@ -51,14 +51,14 @@ namespace AWD{
     }
 	
 	public function __isset($key) {
-       return $this->Isset($key);
+       return $this->IssetData($key);
     }
 	
 	public function HasProperty($key){
 		return array_key_exists($key, $this->data);
 	}
 	
-	public function Isset($key){
+	public function IssetData($key){
 		return isset($this->data[$key]);
 	}
 	
